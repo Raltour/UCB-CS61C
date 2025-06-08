@@ -49,15 +49,15 @@ Image *readData(char *filename)
 		return NULL;
 	}
 
-	image->image = (Color**)malloc(sizeof(Color*) * row);
+	image->image = (Color**)malloc(sizeof(Color*) * row * col);
 	if (image->image == NULL) {
 		printf("Error allocating memory\n");
 		free(image);
 		return NULL;
 	}
 
-	for(int i = 0; i < row; i++) {
-		image->image[i] = (Color*)malloc(sizeof(Color) * col);
+	for (int i = 0; i < row * col; i++) {
+		image->image[i] = (Color*)malloc(sizeof(Color));
 		if (image->image[i] == NULL) {
 			printf("Error allocating memory\n");
 			for (int j = 0; j < i; j++) {
@@ -65,18 +65,18 @@ Image *readData(char *filename)
 			}
 			free(image->image);
 			free(image);
-			return NULL;
+			exit(-1);
 		}
+		image->image[i] = (Color*)malloc(sizeof(Color));
 	}
 
-	for (int i = 0; i < row; i++) {
-		for (int j = 0; j < col; j++) {
-			fscanf(fp, "%u %u %u", 
-			       (unsigned int*)&image->image[i][j].R, 
-			       (unsigned int*)&image->image[i][j].G, 
-			       (unsigned int*)&image->image[i][j].B);
-		}
+	for (int i = 0; i < row * col; i++) {
+		fscanf(fp, "%u %u %u",
+			   (unsigned int*)&image->image[i]->R,
+			   (unsigned int*)&image->image[i]->G,
+			   (unsigned int*)&image->image[i]->B);
 	}
+
 	image->cols = col;
 	image->rows = row;
 	fclose(fp);
@@ -95,9 +95,9 @@ void writeData(Image *image)
 	printf("%d %d\n", image->cols, image->rows);
 	printf("255\n");
 	for (int i = 0; i < image->rows; i++) {
-		int j;
-		for (j = 0; j < image->cols; j++) {
-			printf("%3d %3d %3d", image->image[i][j].R, image->image[i][j].G, image->image[i][j].B);
+		for (int j = 0; j < image->cols; j++) {
+			printf("%3d %3d %3d", image->image[i * image->cols + j]->R,
+				image->image[i * image->cols + j]->G, image->image[i * image->cols + j]->B);
 			if (j < image->cols - 1) {
 				printf("   ");
 			} else {
@@ -113,7 +113,7 @@ void freeImage(Image *image)
 	//YOUR CODE HERE
 	if (image != NULL) {
 		if (image->image != NULL) {
-			for (int i = 0; i < image->rows; i++) {
+			for (int i = 0; i < image->rows * image->cols; i++) {
 				if (image->image[i] != NULL) {
 					free(image->image[i]);
 				}
