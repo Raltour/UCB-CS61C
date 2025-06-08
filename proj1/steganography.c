@@ -22,12 +22,58 @@
 Color *evaluateOnePixel(Image *image, int row, int col)
 {
 	//YOUR CODE HERE
+	Color *secret_pixel = (Color*)malloc(sizeof(Color));
+	if (!secret_pixel) {
+		// Check for malloc failure
+		exit(-1);
+	}
+	if ((image->image[row][col].B & 1) == 0) {
+		secret_pixel->R = 0;
+		secret_pixel->G = 0;
+		secret_pixel->B = 0;
+	} else {
+		secret_pixel->R = 255;
+		secret_pixel->G = 255;
+		secret_pixel->B = 255;
+	}
+	return secret_pixel;
 }
 
 //Given an image, creates a new image extracting the LSB of the B channel.
 Image *steganography(Image *image)
 {
 	//YOUR CODE HERE
+	Image *secret_image = (Image*)malloc(sizeof(Image));
+	if (!secret_image) {
+		// Check for malloc failure
+		exit(-1);
+	}
+	secret_image->rows = image->rows;
+	secret_image->cols = image->cols;
+	secret_image->image = (Color **) malloc(sizeof(Color *) * secret_image->rows);
+	if (!secret_image->image) {
+		// Check for malloc failure
+		free(secret_image);
+		exit(-1);
+	}
+	for (int i = 0; i < secret_image->rows; i++) {
+		secret_image->image[i] = (Color *) malloc(sizeof(Color) * secret_image->cols);
+		if (!secret_image->image[i]) {
+			// Check for malloc failure
+			for (int k = 0; k < i; k++) {
+				free(secret_image->image[k]);
+			}
+			free(secret_image->image);
+			free(secret_image);
+			exit(-1);
+		}
+		for (int j = 0; j < secret_image->cols; j++) {
+			Color *tmp = evaluateOnePixel(image, i, j);
+			secret_image->image[i][j] = *tmp;
+			free(tmp);
+		}
+	}
+	return secret_image;
 }
 
 /*
@@ -46,4 +92,23 @@ Make sure to free all memory before returning!
 int main(int argc, char **argv)
 {
 	//YOUR CODE HERE
+	if (argc != 2) {
+		// Check for correct number of arguments
+		printf("Usage: %s <filename>\n", argv[0]);
+		exit(-1);
+	}
+	Image *image = readData(argv[1]);
+	if (!image) {
+		// Check for readData failure
+		exit(-1);
+	}
+	Image *secret_image = steganography(image);
+	if (!secret_image) {
+		// Check for steganography failure
+		freeImage(image);
+		exit(-1);
+	}
+	writeData(secret_image);
+	freeImage(image);
+	freeImage(secret_image);
 }
