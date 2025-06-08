@@ -48,31 +48,33 @@ Image *steganography(Image *image)
 		// Check for malloc failure
 		exit(-1);
 	}
+
 	secret_image->rows = image->rows;
 	secret_image->cols = image->cols;
-	secret_image->image = (Color **) malloc(sizeof(Color *) * secret_image->rows);
+
+	secret_image->image = (Color **) malloc(sizeof(Color *) * secret_image->rows * secret_image->cols);
 	if (!secret_image->image) {
 		// Check for malloc failure
 		free(secret_image);
 		exit(-1);
 	}
-	for (int i = 0; i < secret_image->rows; i++) {
-		secret_image->image[i] = (Color *) malloc(sizeof(Color) * secret_image->cols);
-		if (!secret_image->image[i]) {
+
+	for (int i = 0; i < secret_image->rows * secret_image->cols; i++) {
+		// secret_image->image[i] = (Color *) malloc(sizeof(Color));
+		// if (!secret_image->image[i]) {
 			// Check for malloc failure
-			for (int k = 0; k < i; k++) {
-				free(secret_image->image[k]);
-			}
-			free(secret_image->image);
-			free(secret_image);
-			exit(-1);
-		}
-		for (int j = 0; j < secret_image->cols; j++) {
-			Color *tmp = evaluateOnePixel(image, i, j);
-			secret_image->image[i][j] = *tmp;
-			free(tmp);
-		}
+			// for (int k = 0; k < i; k++) {
+				// free(secret_image->image[k]);
+			// }
+			// free(secret_image->image);
+			// free(secret_image);
+			// exit(-1);
+		// }
+
+		secret_image->image[i] = evaluateOnePixel(image, i / image->cols, i % image->cols);
 	}
+
+
 	return secret_image;
 }
 

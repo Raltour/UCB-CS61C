@@ -36,7 +36,7 @@ Image *readData(char *filename)
 	if (strcmp(buff, "P3") != 0) {
 		printf("Invalid file format\n");
 		fclose(fp);
-		return NULL;
+		exit(-1);
 	}
 	int row, col;
 	fscanf(fp, "%d %d", &col, &row);
@@ -46,7 +46,7 @@ Image *readData(char *filename)
 	Image *image =  (Image*)malloc(sizeof(Image));
 	if (image == NULL) {
 		printf("Error allocating memory\n");
-		return NULL;
+		exit(-1);
 	}
 
 	image->image = (Color**)malloc(sizeof(Color*) * row * col);
