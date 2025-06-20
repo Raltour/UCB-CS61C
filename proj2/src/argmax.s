@@ -16,19 +16,29 @@
 # =================================================================
 argmax:
 
-    # Prologue
+    li t2, 1
+    blt a1, t2, error_exit
 
+    lw t0, 0(a0)
+    mv t1, a1
+    mv t4, x0
 
 loop_start:
-
+    beq a1, x0, loop_end
+    lw t3, 0(a0)
+    bge t0, t3, loop_continue
+    mv t0, t3
+    sub t4, t1, a1
 
 loop_continue:
-
+    addi a0, a0, 4
+    addi a1, a1, -1
+    j loop_start
 
 loop_end:
-    
-
-    # Epilogue
-
-
+    mv a0, t4
     ret
+
+error_exit:
+    li a1, 77
+    j exit2 #I don't know which function I should call here.

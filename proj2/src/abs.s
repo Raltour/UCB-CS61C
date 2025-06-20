@@ -9,11 +9,7 @@
 #	a0 (int) the absolute value of the input
 # =================================================================
 abs:
-    # Prologue
-
-    # return 0
-    mv a0, zero
-
-    # Epilogue
-
+    bge a0, x0, end
+    sub a0, x0, a0
+end:
     ret
