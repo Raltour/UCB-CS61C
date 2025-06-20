@@ -113,7 +113,7 @@ Image *life(Image *image, uint32_t rule)
 		exit(-1);
 	}
 	for (int i = 0; i < next_image->rows * next_image->cols; i++) {
-		next_image->image[i] = (Color *) malloc(sizeof(Color));
+		// next_image->image[i] = (Color *) malloc(sizeof(Color*));
 		if (!next_image->image[i]) {
 			// Check for malloc failure
 			for (int k = 0; k < i; k++) {
@@ -124,9 +124,10 @@ Image *life(Image *image, uint32_t rule)
 			exit(-1);
 		}
 
-		Color *tmp = evaluateOneCell(image, i / next_image->cols, i % next_image->cols, rule);
-		next_image->image[i] = tmp;
-		free(tmp);
+		// Color *tmp = evaluateOneCell(image, i / next_image->cols, i % next_image->cols, rule);
+		// next_image->image[i] = tmp;
+		// free(tmp);
+		next_image->image[i] = evaluateOneCell(image, i / next_image->cols, i % next_image->cols, rule);
 	}
 	return next_image;
 }
