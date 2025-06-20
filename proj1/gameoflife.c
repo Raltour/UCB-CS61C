@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <inttypes.h>
+#include <string.h>
 #include "imageloader.h"
 
 
@@ -122,11 +123,10 @@ Image *life(Image *image, uint32_t rule)
 			free(next_image);
 			exit(-1);
 		}
-		for (int j = 0; j < next_image->cols * next_image->rows; j++) {
-			Color *tmp = evaluateOneCell(image, i, j, rule);
-			next_image->image[i] = tmp;
-			free(tmp);
-		}
+
+		Color *tmp = evaluateOneCell(image, i / next_image->cols, i % next_image->cols, rule);
+		next_image->image[i] = tmp;
+		free(tmp);
 	}
 	return next_image;
 }
@@ -148,4 +148,23 @@ You may find it useful to copy the code from steganography.c, to start.
 */
 int main(int argc, char **argv) {
 	//YOUR CODE HERE
+	if (argc != 3) {
+		// Check for correct number of arguments
+		printf("Usage: %s <filename>\n", argv[0]);
+		exit(-1);
+	}
+	Image *image = readData(argv[1]);
+	if (!image) {
+		// Check for readData failure
+		exit(-1);
+	}
+	Image *next_image = life(image, (uint32_t)strtol(argv[2], NULL, 16));
+	if (!next_image) {
+		// Check for steganography failure
+		freeImage(image);
+		exit(-1);
+	}
+	writeData(next_image);
+	freeImage(image);
+	freeImage(next_image);
 }

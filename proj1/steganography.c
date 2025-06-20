@@ -27,14 +27,14 @@ Color *evaluateOnePixel(Image *image, int row, int col)
 		// Check for malloc failure
 		exit(-1);
 	}
-	if ((image->image[row][col].B & 1) == 0) {
-		secret_pixel->R = 0;
-		secret_pixel->G = 0;
-		secret_pixel->B = 0;
+	if ((image->image[row][col].B & (uint8_t)1) == 0) {
+		secret_pixel->R = (uint8_t)0;
+		secret_pixel->G = (uint8_t)0;
+		secret_pixel->B = (uint8_t)0;
 	} else {
-		secret_pixel->R = 255;
-		secret_pixel->G = 255;
-		secret_pixel->B = 255;
+		secret_pixel->R = (uint8_t)255;
+		secret_pixel->G = (uint8_t)255;
+		secret_pixel->B = (uint8_t)255;
 	}
 	return secret_pixel;
 }
@@ -50,14 +50,14 @@ Image *steganography(Image *image)
 	}
 	secret_image->rows = image->rows;
 	secret_image->cols = image->cols;
-	secret_image->image = (Color **) malloc(sizeof(Color *) * secret_image->rows);
+	secret_image->image = (Color **) malloc(sizeof(Color *) * secret_image->rows * secret_image->cols);
 	if (!secret_image->image) {
 		// Check for malloc failure
 		free(secret_image);
 		exit(-1);
 	}
-	for (int i = 0; i < secret_image->rows; i++) {
-		secret_image->image[i] = (Color *) malloc(sizeof(Color) * secret_image->cols);
+	for (int i = 0; i < secret_image->rows * secret_image->cols; i++) {
+		secret_image->image[i] = (Color *) malloc(sizeof(Color));
 		if (!secret_image->image[i]) {
 			// Check for malloc failure
 			for (int k = 0; k < i; k++) {
@@ -67,18 +67,17 @@ Image *steganography(Image *image)
 			free(secret_image);
 			exit(-1);
 		}
-		for (int j = 0; j < secret_image->cols; j++) {
-			Color *tmp = evaluateOnePixel(image, i, j);
-			secret_image->image[i][j] = *tmp;
-			free(tmp);
-		}
+
+		Color *tmp = evaluateOnePixel(image, i / secret_image->cols, i % secret_image->cols);
+		secret_image->image[i] = tmp;
+		free(tmp);
 	}
 	return secret_image;
 }
 
 /*
-Loads a file of ppm P3 format from a file, and prints to stdout (e.g. with printf) a new image, 
-where each pixel is black if the LSB of the B channel is 0, 
+Loads a file of ppm P3 format from a file, and prints to stdout (e.g. with printf) a new image,
+where each pixel is black if the LSB of the B channel is 0,
 and white if the LSB of the B channel is 1.
 
 argc stores the number of arguments.
